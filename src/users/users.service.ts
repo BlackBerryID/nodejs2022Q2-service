@@ -55,6 +55,16 @@ export class UsersService {
   }
 
   updateUserPassword(id: string, updateUserDto: UpdateUserDto) {
+    if (
+      !updateUserDto.hasOwnProperty('oldPassword') ||
+      !updateUserDto.hasOwnProperty('newPassword')
+    ) {
+      throw new HttpException(
+        'old password and new password are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     let tempUserData = null;
     let userIndex = null;
 
