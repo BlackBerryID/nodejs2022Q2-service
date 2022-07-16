@@ -52,4 +52,20 @@ export class UsersService {
     delete tempUserData.password;
     return tempUserData;
   }
+
+  removeUser(id: string) {
+    let userIndex = null;
+
+    this.users.forEach((user, index) => {
+      if (user.id === id) {
+        userIndex = index;
+      }
+    });
+
+    if (userIndex === null) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    } else {
+      this.users.splice(userIndex, 1);
+    }
+  }
 }
