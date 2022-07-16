@@ -8,8 +8,10 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './interfaces/user.interface';
 import { UsersService } from './users.service';
 
@@ -30,6 +32,14 @@ export class UsersController {
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
+  }
+
+  @Put(':id')
+  updateUser(
+    @Body() updateUserDto: UpdateUserDto,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.usersService.updateUserPassword(id, updateUserDto);
   }
 
   @Delete(':id')

@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './interfaces/user.interface';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -10,7 +11,7 @@ export class UsersService {
       id: uuidv4(), // uuid v4
       login: '2',
       password: '3',
-      version: 0, // integer number, increments on update
+      version: 1, // integer number, increments on update
       createdAt: 3, // timestamp of creation
       updatedAt: 4, // timestamp of last update
     },
@@ -47,10 +48,41 @@ export class UsersService {
       updatedAt: timestamp,
     };
 
-    this.users.push(tempUserData);
+    this.users.push({ ...tempUserData });
 
     delete tempUserData.password;
     return tempUserData;
+  }
+
+  updateUserPassword(id: string, updateUserDto: UpdateUserDto) {
+    let tempUserData = null;
+    let userIndex = null;
+
+    this.users.map((user, index) => {
+      if (user.id === id) {
+        if (user.password !== updateUserDto.oldPassword) {
+          throw new HttpException(
+            'Your password is wrong',
+            HttpStatus.FORBIDDEN,
+          );
+        }
+        userIndex = index;
+        tempUserData = {
+          ...this.users[index],
+          password: updateUserDto.newPassword,
+          version: this.users[index].version + 1,
+          updatedAt: Date.now(),
+        };
+      }
+    });
+
+    if (userIndex === null) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    } else {
+      this.users[userIndex] = { ...tempUserData };
+      delete tempUserData.password;
+      return tempUserData;
+    }
   }
 
   removeUser(id: string) {
