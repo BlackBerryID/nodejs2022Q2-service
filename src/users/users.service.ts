@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './interfaces/user.interface';
 import { v4 as uuidv4 } from 'uuid';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -23,5 +24,32 @@ export class UsersService {
     const user = this.users.find((user) => user.id === id);
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     return user;
+  }
+
+  createUser(createUserDto: CreateUserDto) {
+    if (
+      !createUserDto.hasOwnProperty('login') ||
+      !createUserDto.hasOwnProperty('password')
+    ) {
+      throw new HttpException(
+        'Login and password are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const timestamp = Date.now();
+
+    const tempUserData: User = {
+      ...createUserDto,
+      id: uuidv4(),
+      version: 1,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+
+    this.users.push(tempUserData);
+
+    delete tempUserData.password;
+    return tempUserData;
   }
 }
