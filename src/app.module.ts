@@ -11,10 +11,28 @@ import { AlbumsController } from './albums/albums.controller';
 import { AlbumsService } from './albums/albums.service';
 import { FavoritesController } from './favorites/favorites.controller';
 import { FavoritesService } from './favorites/favorites.service';
+import { ArtistsModule } from './artists/artists.module';
+import { AlbumsModule } from './albums/albums.module';
+import { TracksModule } from './tracks/tracks.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController, UsersController, ArtistsController, TracksController, AlbumsController, FavoritesController],
-  providers: [AppService, UsersService, ArtistsService, TracksService, AlbumsService, FavoritesService],
+  imports: [ArtistsModule, AlbumsModule, TracksModule, FavoritesModule],
+  controllers: [
+    AppController,
+    UsersController,
+    // ArtistsController,
+    // TracksController,
+    // AlbumsController,
+    // FavoritesController,
+  ],
+  providers: [
+    AppService,
+    UsersService,
+    // ArtistsService,
+    // TracksService,
+    // AlbumsService,
+    // FavoritesService,
+  ],
 })
 export class AppModule {}

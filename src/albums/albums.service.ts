@@ -10,14 +10,7 @@ const NOT_FOUND_MESSAGE = 'Album not found';
 
 @Injectable()
 export class AlbumsService {
-  readonly albums: Album[] = [
-    {
-      id: uuidv4(), // uuid v4
-      name: 'al',
-      year: 1999,
-      artistId: null, // refers to Artist
-    },
-  ];
+  readonly albums: Album[] = [];
 
   getAll() {
     return this.albums;

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AlbumsService } from 'src/albums/albums.service';
 import { ArtistsService } from 'src/artists/artists.service';
 import { NotFoundException } from 'src/exceptions/not-found';
@@ -10,12 +10,15 @@ const EXCEPTION_MESSAGE = (entity: string) => `${entity} not found`;
 @Injectable()
 export class FavoritesService {
   constructor(
-    private artistsService: ArtistsService,
-    private albumsService: AlbumsService,
-    private tracksService: TracksService,
+    @Inject(forwardRef(() => ArtistsService))
+    @Inject(forwardRef(() => AlbumsService))
+    @Inject(forwardRef(() => TracksService))
+    private readonly artistsService: ArtistsService,
+    private readonly albumsService: AlbumsService,
+    private readonly tracksService: TracksService,
   ) {}
 
-  private readonly favorites: Favorites = {
+  readonly favorites: Favorites = {
     artists: [],
     albums: [],
     tracks: [],
