@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AlbumsService } from 'src/albums/albums.service';
 import { ArtistsService } from 'src/artists/artists.service';
+import { NotFoundException } from 'src/exceptions/not-found';
 import { UnprocessableEntityException } from 'src/exceptions/unprocessable-entity';
 import { TracksService } from 'src/tracks/tracks.service';
 
@@ -65,19 +66,35 @@ export class FavoritesService {
     this.favorites.albums.push(track.id);
   }
 
-  // removeAlbum(id: string) {
-  //   let albumIndex = null;
+  removeAlbum(id: string) {
+    const albumIndex = this.favorites.albums.findIndex((album) => album === id);
 
-  //   this.albums.forEach((Album, index) => {
-  //     if (Album.id === id) {
-  //       albumIndex = index;
-  //     }
-  //   });
+    if (albumIndex === -1) {
+      throw new NotFoundException(EXCEPTION_MESSAGE('Album'));
+    }
 
-  //   if (albumIndex === null) {
-  //     throw new NotFoundException(NOT_FOUND_MESSAGE);
-  //   } else {
-  //     this.albums.splice(albumIndex, 1);
-  //   }
-  // }
+    this.favorites.albums.splice(albumIndex, 1);
+  }
+
+  removeArtist(id: string) {
+    const artistIndex = this.favorites.artists.findIndex(
+      (artist) => artist === id,
+    );
+
+    if (artistIndex === -1) {
+      throw new NotFoundException(EXCEPTION_MESSAGE('Artist'));
+    }
+
+    this.favorites.artists.splice(artistIndex, 1);
+  }
+
+  removeTrack(id: string) {
+    const trackIndex = this.favorites.tracks.findIndex((track) => track === id);
+
+    if (trackIndex === -1) {
+      throw new NotFoundException(EXCEPTION_MESSAGE('Track'));
+    }
+
+    this.favorites.tracks.splice(trackIndex, 1);
+  }
 }

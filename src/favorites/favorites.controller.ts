@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
@@ -8,7 +7,6 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
-  ValidationPipe,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 
@@ -36,9 +34,21 @@ export class FavoritesController {
     this.favoritesService.addTrack(id);
   }
 
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // removeAlbum(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-  //   this.albumsService.removeAlbum(id);
-  // }
+  @Delete('album/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeAlbum(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    this.favoritesService.removeAlbum(id);
+  }
+
+  @Delete('artist/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    this.favoritesService.removeArtist(id);
+  }
+
+  @Delete('track/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeTrack(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    this.favoritesService.removeTrack(id);
+  }
 }
