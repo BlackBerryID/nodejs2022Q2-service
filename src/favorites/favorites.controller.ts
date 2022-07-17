@@ -21,10 +21,20 @@ export class FavoritesController {
     return this.favoritesService.getAll();
   }
 
-  // @Post()
-  // createAlbum(@Body(new ValidationPipe()) createAlbumDto: CreateAlbumDto) {
-  //   return this.albumsService.createAlbum(createAlbumDto);
-  // }
+  @Post('album/:id')
+  addAlbum(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    this.favoritesService.addAlbum(id);
+  }
+
+  @Post('artist/:id')
+  addArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    this.favoritesService.addArtist(id);
+  }
+
+  @Post('track/:id')
+  addTrack(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    this.favoritesService.addTrack(id);
+  }
 
   // @Delete(':id')
   // @HttpCode(HttpStatus.NO_CONTENT)

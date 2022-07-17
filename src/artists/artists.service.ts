@@ -10,7 +10,7 @@ const NOT_FOUND_MESSAGE = 'Artist not found';
 
 @Injectable()
 export class ArtistsService {
-  private readonly artists: Artist[] = [];
+  readonly artists: Artist[] = [];
 
   getAll() {
     return this.artists;

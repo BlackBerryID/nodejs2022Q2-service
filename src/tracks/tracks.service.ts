@@ -10,7 +10,7 @@ const NOT_FOUND_MESSAGE = 'Track not found';
 
 @Injectable()
 export class TracksService {
-  private readonly tracks: Track[] = [];
+  readonly tracks: Track[] = [];
 
   getAll() {
     return this.tracks;

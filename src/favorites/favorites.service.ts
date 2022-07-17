@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AlbumsService } from 'src/albums/albums.service';
 import { ArtistsService } from 'src/artists/artists.service';
+import { UnprocessableEntityException } from 'src/exceptions/unprocessable-entity';
 import { TracksService } from 'src/tracks/tracks.service';
+
+const EXCEPTION_MESSAGE = (entity: string) => `${entity} not found`;
 
 @Injectable()
 export class FavoritesService {
@@ -39,23 +42,28 @@ export class FavoritesService {
     return response;
   }
 
-  // createAlbum(createAlbumDto: CreateAlbumDto) {
-  //   const requiredProps = ['name', 'year', 'artistId'];
+  addAlbum(id: string) {
+    const album = this.albumsService.albums.find((album) => album.id === id);
+    if (!album)
+      throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Album'));
+    this.favorites.albums.push(album.id);
+  }
 
-  //   checkAllRequiredProps(
-  //     createAlbumDto,
-  //     'Name, year amd artistId are required',
-  //     requiredProps,
-  //   );
+  addArtist(id: string) {
+    const artist = this.artistsService.artists.find(
+      (artist) => artist.id === id,
+    );
+    if (!artist)
+      throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Artist'));
+    this.favorites.albums.push(artist.id);
+  }
 
-  //   const tempAlbumData: Album = {
-  //     id: uuidv4(),
-  //     ...createAlbumDto,
-  //   };
-
-  //   this.albums.push({ ...tempAlbumData });
-  //   return tempAlbumData;
-  // }
+  addTrack(id: string) {
+    const track = this.tracksService.tracks.find((track) => track.id === id);
+    if (!track)
+      throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Track'));
+    this.favorites.albums.push(track.id);
+  }
 
   // removeAlbum(id: string) {
   //   let albumIndex = null;
