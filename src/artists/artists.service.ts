@@ -6,6 +6,8 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { checkAllowedProps } from 'src/utils/check-allowed-props';
 
+const NOT_FOUND_MESSAGE = 'Artist not found';
+
 @Injectable()
 export class ArtistsService {
   private readonly artists: Artist[] = [];
@@ -16,7 +18,7 @@ export class ArtistsService {
 
   getById(id: string) {
     const user = this.artists.find((artist) => artist.id === id);
-    if (!user) throw new NotFoundException('Artist not found');
+    if (!user) throw new NotFoundException(NOT_FOUND_MESSAGE);
     return user;
   }
 
@@ -46,7 +48,7 @@ export class ArtistsService {
     let tempArtistData = null;
     let artistIndex = null;
 
-    this.artists.map((artist, index) => {
+    this.artists.forEach((artist, index) => {
       if (artist.id === id) {
         artistIndex = index;
         tempArtistData = {
@@ -57,10 +59,26 @@ export class ArtistsService {
     });
 
     if (artistIndex === null) {
-      throw new NotFoundException('Artist not found');
+      throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
       this.artists[artistIndex] = { ...tempArtistData };
       return tempArtistData;
+    }
+  }
+
+  removeArtist(id: string) {
+    let artistIndex = null;
+
+    this.artists.forEach((artist, index) => {
+      if (artist.id === id) {
+        artistIndex = index;
+      }
+    });
+
+    if (artistIndex === null) {
+      throw new NotFoundException(NOT_FOUND_MESSAGE);
+    } else {
+      this.artists.splice(artistIndex, 1);
     }
   }
 }

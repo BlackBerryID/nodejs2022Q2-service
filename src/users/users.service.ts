@@ -1,25 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { User } from './interfaces/user.interface';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundException } from 'src/exceptions/not-found';
 import { checkAllRequiredProps } from 'src/utils/check-all-required-props';
-import { checkAllowedProps } from 'src/utils/check-allowed-props';
 import { ForbiddenException } from 'src/exceptions/forbidden';
+
+const NOT_FOUND_MESSAGE = 'User not found';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [
-    {
-      id: uuidv4(), // uuid v4
-      login: '2',
-      password: '3',
-      version: 1, // integer number, increments on update
-      createdAt: 3, // timestamp of creation
-      updatedAt: 4, // timestamp of last update
-    },
-  ];
+  private readonly users: User[] = [];
 
   getAll() {
     return this.users;
@@ -27,7 +19,7 @@ export class UsersService {
 
   getById(id: string) {
     const user = this.users.find((user) => user.id === id);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException(NOT_FOUND_MESSAGE);
     return user;
   }
 
@@ -68,7 +60,7 @@ export class UsersService {
     let tempUserData = null;
     let userIndex = null;
 
-    this.users.map((user, index) => {
+    this.users.forEach((user, index) => {
       if (user.id === id) {
         if (user.password !== updateUserDto.oldPassword) {
           throw new ForbiddenException('Your password is wrong');
@@ -84,7 +76,7 @@ export class UsersService {
     });
 
     if (userIndex === null) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
       this.users[userIndex] = { ...tempUserData };
       delete tempUserData.password;
@@ -102,7 +94,7 @@ export class UsersService {
     });
 
     if (userIndex === null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
       this.users.splice(userIndex, 1);
     }
