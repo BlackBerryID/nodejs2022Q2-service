@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
@@ -23,25 +24,25 @@ export class ArtistsController {
     return this.artistsService.getAll();
   }
 
-  @Get('id')
+  @Get(':id')
   getArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.artistsService.getById(id);
   }
 
   @Post()
-  createArtist(@Body() createArtistDto: CreateArtistDto) {
+  createArtist(@Body(new ValidationPipe()) createArtistDto: CreateArtistDto) {
     return this.artistsService.createArtist(createArtistDto);
   }
 
-  @Put('id')
+  @Put(':id')
   updateArtist(
-    @Body() updateArtistDto: UpdateArtistDto,
+    @Body(new ValidationPipe()) updateArtistDto: UpdateArtistDto,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
     return this.artistsService.updateArtist(id, updateArtistDto);
   }
 
-  @Delete('id')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   removeArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     this.artistsService.removeArtist(id);
