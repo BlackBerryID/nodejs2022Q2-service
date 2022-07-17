@@ -24,5 +24,7 @@ export class ArtistsController {
   }
 
   @Post()
-  createArtist(@Body() createArtistDto: CreateArtistDto) {}
+  createArtist(@Body() createArtistDto: CreateArtistDto) {
+    return this.artistsService.createArtist(createArtistDto);
+  }
 }
