@@ -3,6 +3,8 @@ import { User } from './interfaces/user.interface';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { NotFoundException } from 'src/exceptions/not-found';
+import { checkAllRequiredProps } from 'src/utils/check-all-required-props';
 
 @Injectable()
 export class UsersService {
@@ -23,20 +25,12 @@ export class UsersService {
 
   getById(id: string) {
     const user = this.users.find((user) => user.id === id);
-    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    if (!user) throw new NotFoundException();
     return user;
   }
 
   createUser(createUserDto: CreateUserDto) {
-    if (
-      !createUserDto.hasOwnProperty('login') ||
-      !createUserDto.hasOwnProperty('password')
-    ) {
-      throw new HttpException(
-        'Login and password are required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    checkAllRequiredProps(createUserDto, 'login', 'password');
 
     const timestamp = Date.now();
 
