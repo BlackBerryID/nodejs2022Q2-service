@@ -5,6 +5,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundException } from 'src/exceptions/not-found';
 import { checkAllRequiredProps } from 'src/utils/check-all-required-props';
+import { checkAllowedProps } from 'src/utils/check-allowed-props';
+import { ForbiddenException } from 'src/exceptions/forbidden';
 
 @Injectable()
 export class UsersService {
@@ -25,12 +27,18 @@ export class UsersService {
 
   getById(id: string) {
     const user = this.users.find((user) => user.id === id);
-    if (!user) throw new NotFoundException();
+    if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
   createUser(createUserDto: CreateUserDto) {
-    checkAllRequiredProps(createUserDto, 'login', 'password');
+    const requiredProps = ['login', 'password'];
+
+    checkAllRequiredProps(
+      createUserDto,
+      'Login and password are required',
+      requiredProps,
+    );
 
     const timestamp = Date.now();
 
@@ -49,15 +57,13 @@ export class UsersService {
   }
 
   updateUserPassword(id: string, updateUserDto: UpdateUserDto) {
-    if (
-      !updateUserDto.hasOwnProperty('oldPassword') ||
-      !updateUserDto.hasOwnProperty('newPassword')
-    ) {
-      throw new HttpException(
-        'old password and new password are required',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const requiredProps = ['oldPassword', 'newPassword'];
+
+    checkAllRequiredProps(
+      updateUserDto,
+      'old password and new password are required',
+      requiredProps,
+    );
 
     let tempUserData = null;
     let userIndex = null;
@@ -65,10 +71,7 @@ export class UsersService {
     this.users.map((user, index) => {
       if (user.id === id) {
         if (user.password !== updateUserDto.oldPassword) {
-          throw new HttpException(
-            'Your password is wrong',
-            HttpStatus.FORBIDDEN,
-          );
+          throw new ForbiddenException('Your password is wrong');
         }
         userIndex = index;
         tempUserData = {
@@ -81,7 +84,7 @@ export class UsersService {
     });
 
     if (userIndex === null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('User not found');
     } else {
       this.users[userIndex] = { ...tempUserData };
       delete tempUserData.password;
