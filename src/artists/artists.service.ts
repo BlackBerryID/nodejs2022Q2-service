@@ -15,10 +15,10 @@ const NOT_FOUND_MESSAGE = 'Artist not found';
 export class ArtistsService {
   constructor(
     @Inject(forwardRef(() => AlbumsService))
-    @Inject(forwardRef(() => TracksService))
-    @Inject(forwardRef(() => FavoritesService))
     private readonly albumsService: AlbumsService,
+    @Inject(forwardRef(() => TracksService))
     private readonly tracksService: TracksService,
+    @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
   ) {}
 

@@ -11,10 +11,10 @@ const EXCEPTION_MESSAGE = (entity: string) => `${entity} not found`;
 export class FavoritesService {
   constructor(
     @Inject(forwardRef(() => ArtistsService))
-    @Inject(forwardRef(() => AlbumsService))
-    @Inject(forwardRef(() => TracksService))
     private readonly artistsService: ArtistsService,
+    @Inject(forwardRef(() => AlbumsService))
     private readonly albumsService: AlbumsService,
+    @Inject(forwardRef(() => TracksService))
     private readonly tracksService: TracksService,
   ) {}
 
@@ -59,14 +59,14 @@ export class FavoritesService {
     );
     if (!artist)
       throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Artist'));
-    this.favorites.albums.push(artist.id);
+    this.favorites.artists.push(artist.id);
   }
 
   addTrack(id: string) {
     const track = this.tracksService.tracks.find((track) => track.id === id);
     if (!track)
       throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Track'));
-    this.favorites.albums.push(track.id);
+    this.favorites.tracks.push(track.id);
   }
 
   removeAlbum(id: string) {
