@@ -17,9 +17,9 @@ export class ArtistsService {
   }
 
   getById(id: string) {
-    const user = this.artists.find((artist) => artist.id === id);
-    if (!user) throw new NotFoundException(NOT_FOUND_MESSAGE);
-    return user;
+    const artist = this.artists.find((artist) => artist.id === id);
+    if (!artist) throw new NotFoundException(NOT_FOUND_MESSAGE);
+    return artist;
   }
 
   createArtist(createArtistDto: CreateArtistDto) {
