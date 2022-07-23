@@ -2,35 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { NotFoundException } from 'src/exceptions/not-found';
-import { checkAllRequiredProps } from 'src/utils/check-all-required-props';
-import { ForbiddenException } from 'src/exceptions/forbidden';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { InMemoryDb } from 'src/db/in-memory-db';
 
 const NOT_FOUND_MESSAGE = 'User not found';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [];
+  constructor(private readonly db: InMemoryDb) {}
 
   getAll() {
-    return this.users;
+    return this.db.users;
   }
 
   getById(id: string) {
-    const user = this.users.find((user) => user.id === id);
+    const user = this.db.users.find((user) => user.id === id);
     if (!user) throw new NotFoundException(NOT_FOUND_MESSAGE);
     return user;
   }
 
   createUser(createUserDto: CreateUserDto) {
-    const requiredProps = ['login', 'password'];
-
-    checkAllRequiredProps(
-      createUserDto,
-      'Login and password are required',
-      requiredProps,
-    );
-
     const timestamp = Date.now();
 
     const tempUserData: User = {
@@ -41,34 +32,26 @@ export class UsersService {
       updatedAt: timestamp,
     };
 
-    this.users.push({ ...tempUserData });
+    this.db.users.push({ ...tempUserData });
 
     delete tempUserData.password;
     return tempUserData;
   }
 
   updateUserPassword(id: string, updateUserDto: UpdateUserDto) {
-    const requiredProps = ['oldPassword', 'newPassword'];
-
-    checkAllRequiredProps(
-      updateUserDto,
-      'old password and new password are required',
-      requiredProps,
-    );
-
     let tempUserData = null;
     let userIndex = null;
 
-    this.users.forEach((user, index) => {
+    this.db.users.forEach((user, index) => {
       if (user.id === id) {
         if (user.password !== updateUserDto.oldPassword) {
           throw new ForbiddenException('Your password is wrong');
         }
         userIndex = index;
         tempUserData = {
-          ...this.users[index],
+          ...this.db.users[index],
           password: updateUserDto.newPassword,
-          version: this.users[index].version + 1,
+          version: this.db.users[index].version + 1,
           updatedAt: Date.now(),
         };
       }
@@ -77,7 +60,7 @@ export class UsersService {
     if (userIndex === null) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      this.users[userIndex] = { ...tempUserData };
+      this.db.users[userIndex] = { ...tempUserData };
       delete tempUserData.password;
       return tempUserData;
     }
@@ -86,7 +69,7 @@ export class UsersService {
   removeUser(id: string) {
     let userIndex = null;
 
-    this.users.forEach((user, index) => {
+    this.db.users.forEach((user, index) => {
       if (user.id === id) {
         userIndex = index;
       }
@@ -95,7 +78,7 @@ export class UsersService {
     if (userIndex === null) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      this.users.splice(userIndex, 1);
+      this.db.users.splice(userIndex, 1);
     }
   }
 }
