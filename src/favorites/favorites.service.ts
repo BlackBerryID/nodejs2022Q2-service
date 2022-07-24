@@ -2,8 +2,10 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AlbumsService } from 'src/albums/albums.service';
 import { ArtistsService } from 'src/artists/artists.service';
 import { InMemoryDb } from 'src/db/in-memory-db';
-import { NotFoundException } from 'src/exceptions/not-found';
-import { UnprocessableEntityException } from 'src/exceptions/unprocessable-entity';
+import {
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { TracksService } from 'src/tracks/tracks.service';
 
 const EXCEPTION_MESSAGE = (entity: string) => `${entity} not found`;

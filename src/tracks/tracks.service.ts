@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InMemoryDb } from 'src/db/in-memory-db';
-import { NotFoundException } from 'src/exceptions/not-found';
+import { NotFoundException } from '@nestjs/common';
 import { FavoritesService } from 'src/favorites/favorites.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateTrackDto } from './dto/create-track.dto';
