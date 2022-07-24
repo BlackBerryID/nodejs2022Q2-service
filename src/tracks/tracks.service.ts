@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { InMemoryDb } from 'src/db/in-memory-db';
 import { NotFoundException } from 'src/exceptions/not-found';
-import { checkAllRequiredProps } from 'src/utils/check-all-required-props';
-import { checkAllowedProps } from 'src/utils/check-allowed-props';
+import { FavoritesService } from 'src/favorites/favorites.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
@@ -10,75 +10,64 @@ const NOT_FOUND_MESSAGE = 'Track not found';
 
 @Injectable()
 export class TracksService {
-  readonly tracks: Track[] = [];
+  constructor(
+    private readonly db: InMemoryDb,
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoriteService: FavoritesService,
+  ) {}
 
   getAll() {
-    return this.tracks;
+    return this.db.tracks;
   }
 
   getById(id: string) {
-    const track = this.tracks.find((track) => track.id === id);
+    const track = this.db.tracks.find((track) => track.id === id);
     if (!track) throw new NotFoundException(NOT_FOUND_MESSAGE);
     return track;
   }
 
   createTrack(createTrackDto: CreateTrackDto) {
-    const requiredProps = ['name', 'artistId', 'albumId', 'duration'];
-
-    checkAllRequiredProps(
-      createTrackDto,
-      'Name, artistId, albumId and duration are required',
-      requiredProps,
-    );
-
-    const tempTrackData: Track = {
+    const newTrack: Track = {
       id: uuidv4(),
+      albumId: null,
+      artistId: null,
       ...createTrackDto,
     };
 
-    this.tracks.push({ ...tempTrackData });
-    return tempTrackData;
+    this.db.tracks.push({ ...newTrack });
+    return newTrack;
   }
 
   updateTrack(id: string, updateTrackDto: UpdateTrackDto) {
-    const allowedProps = ['name', 'artistId', 'albumId', 'duration'];
-
-    checkAllowedProps(updateTrackDto, allowedProps);
-
-    let tempTrackData = null;
+    let updatedTrack = null;
     let trackIndex = null;
 
-    this.tracks.forEach((track, index) => {
+    this.db.tracks.forEach((track, index) => {
       if (track.id === id) {
         trackIndex = index;
-        tempTrackData = {
+        updatedTrack = {
           ...track,
           ...updateTrackDto,
         };
       }
     });
 
-    if (trackIndex === null) {
+    if (updatedTrack === null) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      this.tracks[trackIndex] = { ...tempTrackData };
-      return tempTrackData;
+      this.db.tracks[trackIndex] = { ...updatedTrack };
+      return updatedTrack;
     }
   }
 
   removeTrack(id: string) {
-    let trackIndex = null;
+    const trackIndex = this.db.tracks.findIndex((track) => track.id === id);
 
-    this.tracks.forEach((track, index) => {
-      if (track.id === id) {
-        trackIndex = index;
-      }
-    });
-
-    if (trackIndex === null) {
+    if (trackIndex === -1) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      this.tracks.splice(trackIndex, 1);
+      this.favoriteService.removeTrack(id);
+      this.db.tracks.splice(trackIndex, 1);
     }
   }
 }

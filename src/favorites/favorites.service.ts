@@ -63,7 +63,7 @@ export class FavoritesService {
   }
 
   addTrack(id: string) {
-    const track = this.tracksService.tracks.find((track) => track.id === id);
+    const track = this.db.tracks.find((track) => track.id === id);
     if (!track)
       throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Track'));
     this.favorites.tracks.push(track.id);
@@ -97,13 +97,17 @@ export class FavoritesService {
     }
   }
 
-  removeTrack(id: string) {
-    const trackIndex = this.favorites.tracks.findIndex((track) => track === id);
+  removeTrack(id: string, skipError: boolean = false) {
+    const trackIndex = this.favorites.tracks.findIndex(
+      (trackId) => trackId === id,
+    );
 
-    if (trackIndex === -1) {
+    if (trackIndex === -1 && !skipError) {
       throw new NotFoundException(EXCEPTION_MESSAGE('Track'));
     }
 
-    this.favorites.tracks.splice(trackIndex, 1);
+    if (trackIndex !== -1) {
+      this.favorites.tracks.splice(trackIndex, 1);
+    }
   }
 }

@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
+import { DbModule } from 'src/db/db.module';
+import { FavoritesModule } from 'src/favorites/favorites.module';
 import { TracksController } from './tracks.controller';
 import { TracksService } from './tracks.service';
 
 @Module({
-  imports: [],
+  imports: [DbModule, forwardRef(() => FavoritesModule)],
   controllers: [TracksController],
   providers: [TracksService],
   exports: [TracksService],
