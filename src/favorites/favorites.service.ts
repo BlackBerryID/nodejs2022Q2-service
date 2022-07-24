@@ -22,12 +22,6 @@ export class FavoritesService {
     private readonly tracksService: TracksService,
   ) {}
 
-  readonly favorites: Favorites = {
-    artists: [],
-    albums: [],
-    tracks: [],
-  };
-
   getAll(): FavoritesRepsonse {
     const response = {
       artists: [],
@@ -35,15 +29,15 @@ export class FavoritesService {
       tracks: [],
     };
 
-    this.favorites.artists.forEach((artistId) => {
+    this.db.favorites.artists.forEach((artistId) => {
       response.artists.push(this.artistsService.getById(artistId));
     });
 
-    this.favorites.albums.forEach((albumId) => {
+    this.db.favorites.albums.forEach((albumId) => {
       response.albums.push(this.albumsService.getById(albumId));
     });
 
-    this.favorites.tracks.forEach((trackId) => {
+    this.db.favorites.tracks.forEach((trackId) => {
       response.tracks.push(this.tracksService.getById(trackId));
     });
 
@@ -54,25 +48,25 @@ export class FavoritesService {
     const album = this.db.albums.find((album) => album.id === id);
     if (!album)
       throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Album'));
-    this.favorites.albums.push(album.id);
+    this.db.favorites.albums.push(album.id);
   }
 
   addArtist(id: string) {
     const artist = this.db.artists.find((artist) => artist.id === id);
     if (!artist)
       throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Artist'));
-    this.favorites.artists.push(artist.id);
+    this.db.favorites.artists.push(artist.id);
   }
 
   addTrack(id: string) {
     const track = this.db.tracks.find((track) => track.id === id);
     if (!track)
       throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Track'));
-    this.favorites.tracks.push(track.id);
+    this.db.favorites.tracks.push(track.id);
   }
 
   removeAlbum(id: string, skipError: boolean = false) {
-    const albumIndex = this.favorites.albums.findIndex(
+    const albumIndex = this.db.favorites.albums.findIndex(
       (albumId) => albumId === id,
     );
 
@@ -81,12 +75,12 @@ export class FavoritesService {
     }
 
     if (albumIndex !== -1) {
-      this.favorites.albums.splice(albumIndex, 1);
+      this.db.favorites.albums.splice(albumIndex, 1);
     }
   }
 
   removeArtist(id: string, skipError: boolean = false) {
-    const artistIndex = this.favorites.artists.findIndex(
+    const artistIndex = this.db.favorites.artists.findIndex(
       (artistId) => artistId === id,
     );
 
@@ -95,12 +89,12 @@ export class FavoritesService {
     }
 
     if (artistIndex !== -1) {
-      this.favorites.artists.splice(artistIndex, 1);
+      this.db.favorites.artists.splice(artistIndex, 1);
     }
   }
 
   removeTrack(id: string, skipError: boolean = false) {
-    const trackIndex = this.favorites.tracks.findIndex(
+    const trackIndex = this.db.favorites.tracks.findIndex(
       (trackId) => trackId === id,
     );
 
@@ -109,7 +103,7 @@ export class FavoritesService {
     }
 
     if (trackIndex !== -1) {
-      this.favorites.tracks.splice(trackIndex, 1);
+      this.db.favorites.tracks.splice(trackIndex, 1);
     }
   }
 }
