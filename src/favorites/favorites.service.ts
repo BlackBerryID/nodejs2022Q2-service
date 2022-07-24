@@ -1,6 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AlbumsService } from 'src/albums/albums.service';
 import { ArtistsService } from 'src/artists/artists.service';
+import { InMemoryDb } from 'src/db/in-memory-db';
 import { NotFoundException } from 'src/exceptions/not-found';
 import { UnprocessableEntityException } from 'src/exceptions/unprocessable-entity';
 import { TracksService } from 'src/tracks/tracks.service';
@@ -10,6 +11,7 @@ const EXCEPTION_MESSAGE = (entity: string) => `${entity} not found`;
 @Injectable()
 export class FavoritesService {
   constructor(
+    private readonly db: InMemoryDb,
     @Inject(forwardRef(() => ArtistsService))
     private readonly artistsService: ArtistsService,
     @Inject(forwardRef(() => AlbumsService))
@@ -47,16 +49,14 @@ export class FavoritesService {
   }
 
   addAlbum(id: string) {
-    const album = this.albumsService.albums.find((album) => album.id === id);
+    const album = this.db.albums.find((album) => album.id === id);
     if (!album)
       throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Album'));
     this.favorites.albums.push(album.id);
   }
 
   addArtist(id: string) {
-    const artist = this.artistsService.artists.find(
-      (artist) => artist.id === id,
-    );
+    const artist = this.db.artists.find((artist) => artist.id === id);
     if (!artist)
       throw new UnprocessableEntityException(EXCEPTION_MESSAGE('Artist'));
     this.favorites.artists.push(artist.id);
@@ -83,16 +83,18 @@ export class FavoritesService {
     }
   }
 
-  removeArtist(id: string) {
+  removeArtist(id: string, skipError: boolean = false) {
     const artistIndex = this.favorites.artists.findIndex(
       (artistId) => artistId === id,
     );
 
-    if (artistIndex === -1) {
+    if (artistIndex === -1 && !skipError) {
       throw new NotFoundException(EXCEPTION_MESSAGE('Artist'));
     }
 
-    this.favorites.artists.splice(artistIndex, 1);
+    if (artistIndex !== -1) {
+      this.favorites.artists.splice(artistIndex, 1);
+    }
   }
 
   removeTrack(id: string) {

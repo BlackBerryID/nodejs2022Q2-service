@@ -19,8 +19,6 @@ export class AlbumsService {
     private readonly favoritesService: FavoritesService,
   ) {}
 
-  readonly albums: Album[] = [];
-
   getAll() {
     return this.db.albums;
   }
@@ -88,7 +86,7 @@ export class AlbumsService {
     const tracks = this.tracksService.getAll();
     tracks.forEach((track) => {
       if (track.albumId === id) {
-        this.tracksService.updateTrack(track.id, { artistId: null });
+        this.tracksService.updateTrack(track.id, { albumId: null });
       }
     });
   }

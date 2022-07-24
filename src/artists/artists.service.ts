@@ -1,19 +1,19 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { NotFoundException } from 'src/exceptions/not-found';
-import { checkAllRequiredProps } from 'src/utils/check-all-required-props';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { checkAllowedProps } from 'src/utils/check-allowed-props';
 import { AlbumsService } from 'src/albums/albums.service';
 import { TracksService } from 'src/tracks/tracks.service';
 import { FavoritesService } from 'src/favorites/favorites.service';
+import { InMemoryDb } from 'src/db/in-memory-db';
 
 const NOT_FOUND_MESSAGE = 'Artist not found';
 
 @Injectable()
 export class ArtistsService {
   constructor(
+    private readonly db: InMemoryDb,
     @Inject(forwardRef(() => AlbumsService))
     private readonly albumsService: AlbumsService,
     @Inject(forwardRef(() => TracksService))
@@ -22,102 +22,77 @@ export class ArtistsService {
     private readonly favoritesService: FavoritesService,
   ) {}
 
-  readonly artists: Artist[] = [];
-
   getAll() {
-    return this.artists;
+    return this.db.artists;
   }
 
   getById(id: string) {
-    const artist = this.artists.find((artist) => artist.id === id);
+    const artist = this.db.artists.find((artist) => artist.id === id);
     if (!artist) throw new NotFoundException(NOT_FOUND_MESSAGE);
     return artist;
   }
 
   createArtist(createArtistDto: CreateArtistDto) {
-    const requiredProps = ['name', 'grammy'];
-
-    checkAllRequiredProps(
-      createArtistDto,
-      'Name and grammy are required',
-      requiredProps,
-    );
-
-    const tempArtistData: Artist = {
+    const newArtist: Artist = {
       id: uuidv4(),
       ...createArtistDto,
     };
 
-    this.artists.push({ ...tempArtistData });
-    return tempArtistData;
+    this.db.artists.push({ ...newArtist });
+    return newArtist;
   }
 
   updateArtist(id: string, updateArtistDto: UpdateArtistDto) {
-    const allowedProps = ['name', 'grammy'];
-
-    checkAllowedProps(updateArtistDto, allowedProps);
-
-    let tempArtistData = null;
+    let updatedArtist = null;
     let artistIndex = null;
 
-    this.artists.forEach((artist, index) => {
+    this.db.artists.forEach((artist, index) => {
       if (artist.id === id) {
         artistIndex = index;
-        tempArtistData = {
+        updatedArtist = {
           ...artist,
           ...updateArtistDto,
         };
       }
     });
 
-    if (artistIndex === null) {
+    if (updatedArtist === null) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      this.artists[artistIndex] = { ...tempArtistData };
-      return tempArtistData;
+      this.db.artists[artistIndex] = { ...updatedArtist };
+      return updatedArtist;
     }
   }
 
   removeArtist(id: string) {
-    let artistIndex = null;
-    let tempArtistData = null;
+    const artistIndex = this.db.artists.findIndex((artist) => artist.id === id);
 
-    this.artists.forEach((artist, index) => {
-      if (artist.id === id) {
-        artistIndex = index;
-        tempArtistData = artist;
-      }
-    });
-
-    if (artistIndex === null) {
+    if (artistIndex === -1) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      // set album's artistId to null
-      const album = this.albumsService.albums.find(
-        (album) => album.artistId === tempArtistData.id,
-      );
-      if (album !== undefined) {
+      this.removeArtistIdFromAlbums(String(artistIndex));
+      this.removeArtistIdFromTracks(String(artistIndex));
+      this.favoritesService.removeArtist(String(artistIndex), true);
+      // remove artist
+      this.db.artists.splice(artistIndex, 1);
+    }
+  }
+
+  private removeArtistIdFromAlbums(id: string) {
+    const albums = this.albumsService.getAll();
+    albums.forEach((album) => {
+      if (album.artistId === id) {
         this.albumsService.updateAlbum(album.id, { artistId: null });
       }
+    });
+  }
 
-      // set track's artistId to null
-      const track = this.tracksService.tracks.find(
-        (track) => track.artistId === tempArtistData.id,
-      );
-      if (track !== undefined) {
+  private removeArtistIdFromTracks(id: string) {
+    const tracks = this.tracksService.getAll();
+    tracks.forEach((track) => {
+      if (track.artistId === id) {
         this.tracksService.updateTrack(track.id, { artistId: null });
       }
-
-      // remove artist form favorites
-      const artistId = this.favoritesService.favorites.artists.find(
-        (artistId) => artistId === tempArtistData.id,
-      );
-      if (artistId !== undefined) {
-        this.favoritesService.removeArtist(tempArtistData.id);
-      }
-
-      // remove artist
-      this.artists.splice(artistIndex, 1);
-    }
+    });
   }
 }
