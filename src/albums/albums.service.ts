@@ -32,6 +32,7 @@ export class AlbumsService {
   createAlbum(createAlbumDto: CreateAlbumDto) {
     const newAlbum: Album = {
       id: uuidv4(),
+      artistId: null,
       ...createAlbumDto,
     };
 
