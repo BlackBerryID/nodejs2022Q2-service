@@ -66,7 +66,7 @@ export class TracksService {
     if (trackIndex === -1) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      this.favoriteService.removeTrack(id);
+      this.favoriteService.removeTrack(id, true);
       this.db.tracks.splice(trackIndex, 1);
     }
   }
