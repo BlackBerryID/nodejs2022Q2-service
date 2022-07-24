@@ -70,9 +70,9 @@ export class ArtistsService {
     if (artistIndex === -1) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      this.removeArtistIdFromAlbums(String(artistIndex));
-      this.removeArtistIdFromTracks(String(artistIndex));
-      this.favoritesService.removeArtist(String(artistIndex), true);
+      this.removeArtistIdFromAlbums(id);
+      this.removeArtistIdFromTracks(id);
+      this.favoritesService.removeArtist(id, true);
       // remove artist
       this.db.artists.splice(artistIndex, 1);
     }
@@ -80,7 +80,9 @@ export class ArtistsService {
 
   private removeArtistIdFromAlbums(id: string) {
     const albums = this.albumsService.getAll();
+    console.log('Albums', albums);
     albums.forEach((album) => {
+      console.log('Album', album.artistId, id);
       if (album.artistId === id) {
         this.albumsService.updateAlbum(album.id, { artistId: null });
       }
@@ -89,7 +91,9 @@ export class ArtistsService {
 
   private removeArtistIdFromTracks(id: string) {
     const tracks = this.tracksService.getAll();
+    console.log('Tracks', tracks);
     tracks.forEach((track) => {
+      console.log('Track', track.artistId, id);
       if (track.artistId === id) {
         this.tracksService.updateTrack(track.id, { artistId: null });
       }
