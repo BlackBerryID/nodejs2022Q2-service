@@ -64,20 +64,20 @@ export class AlbumsService {
 
   removeAlbum(id: string) {
     let albumIndex = null;
-    let album = null;
+    let tempAlbum = null;
 
     this.db.albums.forEach((album, index) => {
       if (album.id === id) {
         albumIndex = index;
-        album = album;
+        tempAlbum = album;
       }
     });
 
-    if (album === null) {
+    if (tempAlbum === null) {
       throw new NotFoundException(NOT_FOUND_MESSAGE);
     } else {
-      this.removeAlbumIdFromTracks(album.id);
-      this.favoritesService.removeAlbum(album.id, true);
+      this.removeAlbumIdFromTracks(tempAlbum.id);
+      this.favoritesService.removeAlbum(tempAlbum.id, true);
       // remove album
       this.db.albums.splice(albumIndex, 1);
     }
