@@ -10,10 +10,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ValidationPipe } from 'src/pipes/validation.pipe';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './interfaces/user.interface';
 import { UsersService } from './users.service';
 
 @Controller('user')
@@ -31,13 +29,13 @@ export class UsersController {
   }
 
   @Post()
-  createUser(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
+  createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
   }
 
   @Put(':id')
   updateUser(
-    @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserDto,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
     return this.usersService.updateUserPassword(id, updateUserDto);
