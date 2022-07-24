@@ -24,7 +24,7 @@ export class UsersService {
   createUser(createUserDto: CreateUserDto) {
     const timestamp = Date.now();
 
-    const tempUserData: User = {
+    const newUser: User = {
       ...createUserDto,
       id: uuidv4(),
       version: 1,
@@ -32,10 +32,10 @@ export class UsersService {
       updatedAt: timestamp,
     };
 
-    this.db.users.push({ ...tempUserData });
+    this.db.users.push({ ...newUser });
 
-    delete tempUserData.password;
-    return tempUserData;
+    delete newUser.password;
+    return newUser;
   }
 
   updateUserPassword(id: string, updateUserDto: UpdateUserDto) {

@@ -69,19 +69,23 @@ export class FavoritesService {
     this.favorites.tracks.push(track.id);
   }
 
-  removeAlbum(id: string) {
-    const albumIndex = this.favorites.albums.findIndex((album) => album === id);
+  removeAlbum(id: string, skipError: boolean = false) {
+    const albumIndex = this.favorites.albums.findIndex(
+      (albumId) => albumId === id,
+    );
 
-    if (albumIndex === -1) {
+    if (albumIndex === -1 && !skipError) {
       throw new NotFoundException(EXCEPTION_MESSAGE('Album'));
     }
 
-    this.favorites.albums.splice(albumIndex, 1);
+    if (albumIndex !== -1) {
+      this.favorites.albums.splice(albumIndex, 1);
+    }
   }
 
   removeArtist(id: string) {
     const artistIndex = this.favorites.artists.findIndex(
-      (artist) => artist === id,
+      (artistId) => artistId === id,
     );
 
     if (artistIndex === -1) {
